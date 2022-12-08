@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% block content_1 %}
+    <div class="content-section">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Log In</legend>
+                <div class="form-group border-bottom mb-3">
+                    {{ form.id.label(class="form-control-label") }}
+                    {% if form.id.errors %}
+                        {{ form.id(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.id(class="form-control form-control") }}
+                    {% endif %}
+                </div>
+                <div class="form-group border-bottom mb-3">
+                    {{ form.password.label(class="form-control-label") }}
+                    {% if form.password.errors %}
+                        {{ form.password(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.password(class="form-control form-control") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group border-bottom mb-3">
+                    {{ form.otp.label(class="form-control-label") }}
+                    {% if form.otp.errors %}
+                        {{ form.otp(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.otp.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.otp(class="form-control form-control") }}
+                    {% endif %}
+                     <small class="form-text text-muted">
+                        Please use FreeOTP (<a href="https://play.google.com/store/apps/details?id=org.fedorahosted.freeotp&hl=en_US&gl=US&pli=1">Android</a>, <a href="https://apps.apple.com/us/app/freeotp-authenticator/id872559395">iOS</a>) APP on your smartphone and refer the OTP</p>
+                    </small>
+                </div>
+
+
+            </fieldset>
+            <div class="form-group border-bottom mb-3">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+            <small class="text-muted ml-2">
+                <a href="{{ url_for('passwordReset') }}">Forgot Password?</a>
+            </small>
+        </form>
+    </div>
+    <div class="border-top pt-4">
+        <small class="text-muted">
+            Need An Account? <a class="ml-2" href="{{ url_for('register') }}">Sign Up Now</a>
+        </small>
+    </div>
+{% endblock content_1 %}

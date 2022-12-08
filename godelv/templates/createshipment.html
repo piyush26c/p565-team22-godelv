@@ -1,0 +1,543 @@
+{% extends "layout.html" %}
+
+{% block  content_2 %}
+    {#following code is for payment (paypal) gateway#}
+    <script src="https://www.paypal.com/sdk/js?client-id=AWWcxPvF1E5cIb1Ba55VIn29Yk7CCTHsgDDfmcHmep4tM2EgTAMicaDF9QdhR4PGJh-COHsDcweWdID1&currency=USD"></script>
+    <script>
+        {#following code is for shipping details dropdown (dynamic)#}
+        function dosomething() {
+            alert('boggy boggy')
+
+        }
+        $(document).ready(function () {
+            $('#servicename').selectpicker();
+
+            function load_data_carriername(carriername) {
+                $.ajax({
+                    url: "/fetchdropdowndata_carriername",
+                    method: "POST",
+                    data: {carriername: carriername},
+                    dataType: "json",
+                    success: function (data) {
+                        console.log(data)
+                        var html = "";
+                        for (var count = 0; count < data.length; count++) {
+                            html += '<option value="' + data[count].value + '">' + data[count].display + "</option>";
+                        }
+                        console.log(html.toString());
+                        $("#servicename").html(html);
+                        $('#servicename').selectpicker("refresh");
+                    },
+
+                });
+            }
+
+            function load_data_carrier_dimension(carriername) {
+                $.ajax({
+                    url: "/fetchdropdowndata_carrierdimensions",
+                    method: "POST",
+                    data: {carriername: carriername},
+                    dataType: "json",
+                    success: function (data) {
+                        console.log(data)
+                        var html = "";
+                        for (var count = 0; count < data.length; count++) {
+                            html += '<option value="' + data[count].value + '">' + data[count].display + "</option>";
+                        }
+                        console.log(html.toString());
+                        $("#packagesize").html(html);
+                        $('#packagesize').selectpicker("refresh");
+                    },
+
+                });
+            }
+
+            $(document).on("change", "#carriername", function () {
+                var carriername = $("#carriername").val();
+                alert(carriername);
+                load_data_carriername(carriername);
+                load_data_carrier_dimension(carriername);
+            });
+
+
+        });
+
+        function loadAmountForPayment() {
+            return {{ session['shippment_price'] }};
+        }
+
+        function insertShippmentIDDB(trackingid) {
+            $.ajax({
+                    url: "/insertShippmentIDDB",
+                    method: "POST",
+                    data: {'trackingid': trackingid},
+                    dataType: "json",
+                    success: function (data) {
+                        console.log('Tracking ID & Shippment Details  inserted in db successfully!', data.trackingid);
+                    },
+
+                });
+        }
+
+        paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                shape: 'pill',
+                label: 'paypal',
+                height: 35,
+                width: 10
+            },
+            // Sets up the transaction when a payment button is clicked
+            createOrder: (data, actions) => {
+                return actions.order.create({
+
+                    purchase_units: [{
+                        amount: {
+                            value: loadAmountForPayment() // Can also reference a variable or function
+                        }
+                    }]
+                });
+            },
+            // Finalize the transaction after payer approval
+            onApprove: (data, actions) => {
+                return actions.order.capture().then(function (orderData) {
+                    // Successful capture! For dev/demo purposes:
+                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                    const transaction = orderData.purchase_units[0].payments.captures[0];
+
+                    //alert();
+                    setTimeout(function() { alert(`Transaction ${transaction.status} \n\n Your TrackingID: ${transaction.id}\n\nThank you for your payment!\n\n Redirecting you to Home Page....`); }, 500);
+
+                    insertShippmentIDDB(transaction.id);
+
+                    setTimeout(function () {
+                        window.location = "/customerhome"
+                    }, 2000);
+
+
+                });
+            }
+        }).render('#paypal-button-container')
+
+
+    </script>
+
+{% endblock %}
+
+
+
+{% block content_1 %}
+
+    <div class="accordion" id="accordionExample">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h1 class="mb-0">
+                    <button class="btn" type="button" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="true" aria-controls="collapseOne">
+                        1. Address Information
+                    </button>
+                </h1>
+            </div>
+
+
+            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body content-section">
+                    <form method="POST" action="{{ url_for('createshipment') }}">
+                        {{ addressInformationForm.hidden_tag() }}
+                        {{ addressInformationForm.csrf_token }}
+                        <table>
+                            <tr>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <legend class="border-bottom mb-4">From Address</legend>
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.fname.label(class="form-control-label") }}
+                                            {% if addressInformationForm.fname.errors %}
+                                                {{ addressInformationForm.fname(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.fname.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.fname(class="form-control form-control") }}
+                                            {% endif %}
+                                        </div>
+
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.faddress.label(class="form-control-label") }}
+                                            {% if addressInformationForm.faddress.errors %}
+                                                {{ addressInformationForm.faddress(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.faddress.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.faddress(class="form-control form-control", autocomplete="address-line1") }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.fapartment.label(class="form-control-label") }}
+                                            {% if addressInformationForm.fapartment.errors %}
+                                                {{ addressInformationForm.fapartment(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.fapartment.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.fapartment(class="form-control form-control", autocomplete="address-line2") }}
+                                            {% endif %}
+                                        </div>
+
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.fcity.label(class="form-control-label") }}
+                                            {% if addressInformationForm.fcity.errors %}
+                                                {{ addressInformationForm.fcity(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.fcity.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.fcity(class="form-control form-control", autocomplete="address-level2") }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.fstate.label(class="form-control-label") }}
+                                            {% if addressInformationForm.fstate.errors %}
+                                                {{ addressInformationForm.fstate(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.fstate.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.fstate(class="form-control form-control", autocomplete="address-level1") }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.fzip.label(class="form-control-label") }}
+                                            {% if addressInformationForm.fzip.errors %}
+                                                {{ addressInformationForm.fzip(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.fzip.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.fzip(class="form-control form-control", autocomplete="postal-code") }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.fmobileNo.label(class="form-control-label") }}
+                                            {% if addressInformationForm.fmobileNo.errors %}
+                                                {{ addressInformationForm.fmobileNo(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.fmobileNo.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.fmobileNo(class="form-control form-control") }}
+                                            {% endif %}
+                                        </div>
+
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.femail.label(class="form-control-label") }}
+                                            {% if addressInformationForm.femail.errors %}
+                                                {{ addressInformationForm.femail(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.femail.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.femail(class="form-control form-control") }}
+                                            {% endif %}
+                                        </div>
+
+
+                                    </fieldset>
+                                </td>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <legend class="border-bottom mb-4">To Address</legend>
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.rname.label(class="form-control-label") }}
+                                            {% if addressInformationForm.rname.errors %}
+                                                {{ addressInformationForm.rname(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.rname.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.rname(class="form-control form-control") }}
+                                            {% endif %}
+                                        </div>
+
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.raddress.label(class="form-control-label") }}
+                                            {% if addressInformationForm.raddress.errors %}
+                                                {{ addressInformationForm.raddress(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.raddress.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.raddress(class="form-control form-control", autocomplete="address-line1") }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.rapartment.label(class="form-control-label") }}
+                                            {% if addressInformationForm.rapartment.errors %}
+                                                {{ addressInformationForm.rapartment(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.rapartment.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.rapartment(class="form-control form-control", autocomplete="address-line2") }}
+                                            {% endif %}
+                                        </div>
+
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.rcity.label(class="form-control-label") }}
+                                            {% if addressInformationForm.rcity.errors %}
+                                                {{ addressInformationForm.rcity(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.rcity.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.rcity(class="form-control form-control", autocomplete="address-level2") }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.rstate.label(class="form-control-label") }}
+                                            {% if addressInformationForm.rstate.errors %}
+                                                {{ addressInformationForm.rstate(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.rstate.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.rstate(class="form-control form-control", autocomplete="address-level1") }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.rzip.label(class="form-control-label") }}
+                                            {% if addressInformationForm.rzip.errors %}
+                                                {{ addressInformationForm.rzip(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.rzip.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.rzip(class="form-control form-control", autocomplete="postal-code") }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.rmobileNo.label(class="form-control-label") }}
+                                            {% if addressInformationForm.rmobileNo.errors %}
+                                                {{ addressInformationForm.rmobileNo(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.rmobileNo.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.rmobileNo(class="form-control form-control") }}
+                                            {% endif %}
+                                        </div>
+
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ addressInformationForm.remail.label(class="form-control-label") }}
+                                            {% if addressInformationForm.remail.errors %}
+                                                {{ addressInformationForm.remail(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in addressInformationForm.remail.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ addressInformationForm.remail(class="form-control form-control") }}
+                                            {% endif %}
+                                        </div>
+
+
+                                    </fieldset>
+                                </td>
+                            </tr>
+                        </table>
+
+
+                        <div class="form-group border-bottom mb-3">
+                            {{ addressInformationForm.submit1(class="btn btn-outline-info") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingTwo">
+                <h1 class="mb-0">
+                    <button class="btn" type="button" data-toggle="collapse" data-target="#collapseTwo"
+                            aria-expanded="true" aria-controls="collapseTwo">
+                        2. Shipment Details
+                    </button>
+                </h1>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                <div class="card-body">
+                    <form id="shippingdetailsform" method="POST" action="{{ url_for('createshipment') }}">
+                        {{ shippingDetailsForm.hidden_tag() }}
+                        {{ shippingDetailsForm.csrf_token }}
+                        <table>
+                            <tr>
+                                <td>
+                                    <fieldset class="form-group">
+                                        <legend class="border-bottom mb-4">Shippment Details</legend>
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ shippingDetailsForm.carriername.label(class="form-control-label") }}
+                                            {% if shippingDetailsForm.carriername.errors %}
+                                                {{ shippingDetailsForm.carriername(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in shippingDetailsForm.carriername.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ shippingDetailsForm.carriername(class="form-control form-control", id="carriername") }}
+                                            {% endif %}
+                                        </div>
+
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ shippingDetailsForm.servicename.label(class="form-control-label") }}
+                                            {% if shippingDetailsForm.servicename.errors %}
+                                                {{ shippingDetailsForm.servicename(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in shippingDetailsForm.servicename.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <select class="form-control form-control" name="servicename"
+                                                        id="servicename" data-live-search="true">
+                                                </select>
+                                                {#                                                {{ shippingDetailsForm.servicename(class="form-control form-control", id="servicename") }}#}
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ shippingDetailsForm.packageweight.label(class="form-control-label") }}
+                                            {% if shippingDetailsForm.packageweight.errors %}
+                                                {{ shippingDetailsForm.packageweight(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in shippingDetailsForm.packageweight.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ shippingDetailsForm.packageweight(class="form-control form-control") }}
+                                            {% endif %}
+                                        </div>
+
+
+                                        <div class="form-group border-bottom mb-3">
+                                            {{ shippingDetailsForm.packagesize.label(class="form-control-label") }}
+                                            {% if shippingDetailsForm.packagesize.errors %}
+                                                {{ shippingDetailsForm.packagesize(class="form-control form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in shippingDetailsForm.packagesize.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ shippingDetailsForm.packagesize(class="form-control form-control", id="packagesize") }}
+                                            {% endif %}
+                                        </div>
+
+{#                                        <div class="form-group border-bottom mb-3">#}
+{#                                            {{ shippingDetailsForm.packagetimeOpts.label(class="form-control-label") }}#}
+{#                                            {% if shippingDetailsForm.packagetimeOpts.errors %}#}
+{#                                                {{ shippingDetailsForm.packagetimeOpts(class="form-control form-control is-invalid") }}#}
+{#                                                <div class="invalid-feedback">#}
+{#                                                    {% for error in shippingDetailsForm.packagetimeOpts.errors %}#}
+{#                                                        <span>{{ error }}</span>#}
+{#                                                    {% endfor %}#}
+{#                                                </div>#}
+{#                                            {% else %}#}
+{#                                                {{ shippingDetailsForm.packagetimeOpts(class="form-control form-control", id="packagetimeOpts") }}#}
+{#                                            {% endif %}#}
+{#                                        </div>#}
+
+                                    </fieldset>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="form-group border-bottom mb-3">
+                            {{ shippingDetailsForm.submit2(class="btn btn-outline-info", id="shippingdetailssubmit") }}
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingThree">
+                <h1 class="mb-0">
+                    <button class="btn" type="button" data-toggle="collapse" data-target="#collapseThree"
+                            aria-expanded="true" aria-controls="collapseThree">
+                        3. Payment Details
+                    </button>
+                </h1>
+            </div>
+
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+                <div class="card-body">
+                    <table>
+                        <tr>
+                            <td>
+                                <div id="paypal-button-container">
+
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock content_1 %}
+
+

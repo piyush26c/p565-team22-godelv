@@ -1,0 +1,8 @@
+{% extends "layout.html" %}
+
+{% block content_1 %}
+    <h1>Welcome to GoDelv Delivery Driver Portal</h1>
+    <p>Your username is: {{ session['username']}}</p>
+    <p>Carrier: {{ session['carrierName'] }}</p>
+
+{% endblock content_1%}

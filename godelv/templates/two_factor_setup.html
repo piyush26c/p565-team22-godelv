@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content_1 %}
+
+{#    <h3>Thank you for registering @GoDelv</h3>#}
+{#    Username: {{ userName }}#}
+
+    <h1>Two Factor Authentication Setup</h1>
+    <p>You are almost done! Please start FreeOTP (<a href="https://play.google.com/store/apps/details?id=org.fedorahosted.freeotp&hl=en_US&gl=US&pli=1">Android</a>, <a href="https://apps.apple.com/us/app/freeotp-authenticator/id872559395">iOS</a>) on your smartphone and scan the following QR Code with it:</p>
+    <p><img id="qrcode" src="{{ url_for('qrcode') }}"></p>
+    <p>I'm done, take me to the <a href="{{ url_for('login') }}">Login</a> page!</p>
+
+{% endblock content_1 %}

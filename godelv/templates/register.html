@@ -1,0 +1,259 @@
+{% extends "layout.html" %}
+
+
+{% block  content_2 %}
+    <script>
+
+        $(document).ready(function () {
+            $("#carriernamediv").hide();
+            $("#managerIDdiv").hide();
+
+            function load_data_carriers() {
+                $.ajax({
+                    url: "/fetchdropdowndata_carriers",
+                    method: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        console.log(data)
+                        var html = "";
+                        for (var count = 0; count < data.length; count++) {
+                            html += '<option value="' + data[count].value + '">' + data[count].display + "</option>";
+                        }
+                        console.log(html.toString());
+                        $("#carrierName").html(html);
+                    },
+
+                });
+            }
+
+
+            function load_carriermanagers(carriername) {
+                console.log('i am in load_carriermanagers')
+                $.ajax({
+                    url: "/fetchdropdowndata_carriermanagers",
+                    method: "POST",
+                    data: {carriername: carriername},
+                    dataType: "json",
+                    success: function (data) {
+                        console.log(data)
+                        var html = "";
+                        for (var count = 0; count < data.length; count++) {
+                            html += '<option value="' + data[count].value + '">' + data[count].display + "</option>";
+                        }
+                        console.log(html.toString());
+                        $("#managerID").html(html);
+                    },
+
+                });
+            }
+
+            $(document).on("change", "#userType", function () {
+                var userType = $("#userType").val();
+                if (userType == "CUSTOMER") {
+                    $("#carriernamediv").hide();
+                    $("#managerIDdiv").hide();
+                }
+                if (userType == "ADMINISTRATOR") {
+                    $("#carriernamediv").show();
+                    $("#managerIDdiv").hide();
+                    load_data_carriers();
+                }
+
+                if (userType == "DELIVERYDRIVER") {
+                    $("#carriernamediv").show();
+                    load_data_carriers();
+                    $("#managerIDdiv").show();
+                     var carriername = $("#carrierName").val();
+
+                     console.log('deliverydriver jquery: ', carriername);
+                      load_carriermanagers(carriername);
+
+
+                }
+            });
+
+            $(document).on("change", "#carrierName", function () {
+                var userType = $("#userType").val();
+                var carriername = $("#carrierName").val();
+                if (userType == "DELIVERYDRIVER") {
+                    load_carriermanagers(carriername);
+                }
+            });
+
+
+
+        });
+
+
+    </script>
+
+{% endblock %}
+
+
+
+
+
+{% block content_1 %}
+    <div class="content-section">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Register</legend>
+
+                <div class="form-group border-bottom mb-3">
+                    {{ form.firstName.label(class="form-control-label") }}
+
+                    {% if form.firstName.errors %}
+                        {{ form.firstName(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.firstName.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.firstName(class="form-control form-control") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group border-bottom mb-3">
+                    {{ form.lastName.label(class="form-control-label") }}
+
+                    {% if form.lastName.errors %}
+                        {{ form.lastName(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.lastName.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.lastName(class="form-control form-control") }}
+                    {% endif %}
+                </div>
+
+
+                <div class="form-group border-bottom mb-3">
+                    {{ form.email.label(class="form-control-label") }}
+                    {% if form.email.errors %}
+                        {{ form.email(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.email(class="form-control form-control", placeholder="name@example.com") }}
+                    {% endif %}
+                    <small class="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
+
+
+                <div class="form-group border-bottom mb-3">
+                    {{ form.dateOfBirth.label(class="form-control-label") }}
+                    {% if form.dateOfBirth.errors %}
+                        {{ form.dateOfBirth(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.dateOfBirth.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.dateOfBirth(class="form-control form-control") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group border-bottom mb-3">
+                    {{ form.mobileNo.label(class="form-control-label") }}
+                    {% if form.mobileNo.errors %}
+                        {{ form.mobileNo(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.mobileNo.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.mobileNo(class="form-control form-control", placeholder="Enter 10 digit Mobile No.") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group border-bottom mb-3">
+                    {{ form.password.label(class="form-control-label") }}
+                    {% if form.password.errors %}
+                        {{ form.password(class="form-control form-controlis-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.password(class="form-control form-control") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group border-bottom mb-3">
+                    {{ form.confirmPassword.label(class="form-control-label") }}
+                    {% if form.confirmPassword.errors %}
+                        {{ form.confirmPassword(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.confirmPassword.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.confirmPassword(class="form-control form-control") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group border-bottom mb-3">
+                    {{ form.userType.label(class="form-control-label") }}
+                    {% if form.userType.errors %}
+                        {{ form.userType(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.userType.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.userType(class="form-control form-control", id="userType") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group border-bottom mb-3" id="carriernamediv">
+                    {{ form.carrierName.label(class="form-control-label") }}
+                    {% if form.carrierName.errors %}
+                        {{ form.carrierName(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.carrierName.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.carrierName(class="form-control form-control", id="carrierName") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group border-bottom mb-3" id="managerIDdiv">
+                    {{ form.managerID.label(class="form-control-label") }}
+                    {% if form.managerID.errors %}
+                        {{ form.managerID(class="form-control form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.managerID.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.managerID(class="form-control form-control", id="managerID") }}
+                    {% endif %}
+                </div>
+
+            </fieldset>
+            <div class="form-group border-bottom mb-2">
+                {{ form.submitRegistration(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            Already Have An Account? <a class="ml-2" href="{{ url_for('login') }}">Sign In</a>
+        </small>
+    </div>
+{% endblock content_1 %}

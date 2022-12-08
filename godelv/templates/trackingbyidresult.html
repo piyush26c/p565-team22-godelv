@@ -1,0 +1,82 @@
+{% extends "trackbyid.html" %}
+{% block content_2 %}
+
+    <link rel="stylesheet" href="static/trackingbyidresult.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+
+
+    <script>
+
+        $(document).ready(function () {
+            console.log('i am in tracking page')
+            {% if trackingDetails['deliveryStatus'] == "ORDER CONFIRMED"%}
+                $("#p1").attr("class", "step active");
+            {% elif trackingDetails['deliveryStatus'] == "PICKED BY CARRIER"%}
+                $("#p1").attr("class", "step active");
+                $("#p2").attr("class", "step active");
+            {% elif trackingDetails['deliveryStatus'] == "ON THE WAY" %}
+                $("#p1").attr("class", "step active");
+                $("#p2").attr("class", "step active");
+                $("#p3").attr("class", "step active");
+            {% else %}
+                $("#p1").attr("class", "step active");
+                $("#p2").attr("class", "step active");
+                $("#p3").attr("class", "step active");
+                $("#p4").attr("class", "step active");
+            {% endif %}
+        });
+    </script>
+
+{% endblock %}
+
+{% block showtrackingbyiddetails %}
+    <div class="container">
+        <article class="card">
+            <div class="card-body">
+                <h5>Tracking ID: {{ trackingDetails['TID'] }}</h5>
+                <article class="card">
+                    <div>
+                        <article class="card">
+                            <strong>Shipped By:</strong> {{ shippmentDetails['carrierName'] }}
+                        </article>
+
+                        <article class="card">
+                            <strong>Status:</strong> {{ trackingDetails['deliveryStatus'] }}
+                        </article>
+
+                        {% if trackingDetails['deliveryStatus'] != "ORDER CONFIRMED" %}
+                            <article class="card">
+                                <strong>Current Location: </strong>
+                                {{ trackingDetails['address'] }} , {{ trackingDetails['apartment'] }}
+                                <br>{{ trackingDetails['city'] }}
+                                , {{ trackingDetails['state'] }}, {{ trackingDetails['zip'] }}
+                            </article>
+                        {% endif %}
+
+                    </div>
+                </article>
+                <div class="track">
+                    <div id="p1" class="step"><span class="icon"> <i class="fa fa-check"></i></span> <span class="text">Order confirmed</span>
+                    </div>
+                    <div id="p2" class="step"><span class="icon"> <i class="fa fa-user"></i> </span> <span class="text"> Picked by carrier</span>
+                    </div>
+                    <div id="p3" class="step"><span class="icon"> <i class="fa fa-truck"></i> </span> <span
+                            class="text"> On the way </span>
+                    </div>
+                    <div id="p4" class="step"><span class="icon"> <i class="fa fa-check"></i> </span> <span
+                            class="text">Delivered</span>
+                    </div>
+                </div>
+
+            </div>
+        </article>
+    </div>
+    {% if trackingDetails['deliveryStatus'] != "ORDER CONFIRMED" %}
+        <div style="width:1000px; height:1000px" style="z-index: -10">
+            {% include 'map.html' %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+
+

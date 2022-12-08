@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block  content_2 %}
+    {#     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">#}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.css">
+    <script>
+        $(document).ready(function () {
+            $('#data').DataTable({
+                columns: [
+                    {searchable: true},
+                    {searchable: false, orderable: false},
+                    {orderable: true, searchable: true},
+                    {orderable: true, searchable: true},
+                    {orderable: true, searchable: true}],
+            });
+        });
+    </script>
+{% endblock %}
+
+
+{% block content_1 %}
+    <table id="data" class="table table-striped">
+        <thead>
+        <tr>
+            <th>Shipping / Tracking ID</th>
+            <th>Recipient Address</th>
+            <th>Recipient City</th>
+            <th>Recipient State</th>
+            <th>Recipient Zip</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in tablerows %}
+            <tr>
+                <td><a href="{{ url_for('delegateordertodriver', SID=row['SID'])}}">{{ row['SID'] }}</a></td>
+                <td>{{ row['raddress'] }}</td>
+                <td>{{ row['rcity'] }}</td>
+                <td>{{ row['rstate'] }}</td>
+                <td>{{ row['rzip'] }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+            src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8"
+            src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script>
+
+{% endblock %}
