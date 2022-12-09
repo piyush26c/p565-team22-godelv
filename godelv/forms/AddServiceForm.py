@@ -8,5 +8,5 @@ class AddServiceForm(FlaskForm):
     dimension = SelectField('Dimension', validators=[DataRequired()], choices=[('Small', 'Small'), ('Medium', 'Medium'),
                                                                          ('Large', 'Large')
                                                                          ], validate_choice=False)
-    price = DecimalField('Price (/lb)', validators=[DataRequired()])
+    price = DecimalField('Price (per lb)', validators=[DataRequired()])
     addService = SubmitField('Add')

@@ -6,8 +6,7 @@
     <script>
         {#following code is for shipping details dropdown (dynamic)#}
         function dosomething() {
-            alert('boggy boggy')
-
+            //alert('boggy boggy')
         }
         $(document).ready(function () {
             $('#servicename').selectpicker();
@@ -54,7 +53,7 @@
 
             $(document).on("change", "#carriername", function () {
                 var carriername = $("#carriername").val();
-                alert(carriername);
+                //alert(carriername);
                 load_data_carriername(carriername);
                 load_data_carrier_dimension(carriername);
             });
@@ -175,7 +174,7 @@
                                                     {% endfor %}
                                                 </div>
                                             {% else %}
-                                                {{ addressInformationForm.faddress(class="form-control form-control", autocomplete="address-line1") }}
+                                                {{ addressInformationForm.faddress(class="form-control form-control", autocomplete="address-line1", placeholder="Stree address") }}
                                             {% endif %}
                                         </div>
 
@@ -189,7 +188,7 @@
                                                     {% endfor %}
                                                 </div>
                                             {% else %}
-                                                {{ addressInformationForm.fapartment(class="form-control form-control", autocomplete="address-line2") }}
+                                                {{ addressInformationForm.fapartment(class="form-control form-control", autocomplete="address-line2", placeholder="Apt, Floor, Suite, etc .. (compulsory)") }}
                                             {% endif %}
                                         </div>
 
@@ -246,7 +245,7 @@
                                                     {% endfor %}
                                                 </div>
                                             {% else %}
-                                                {{ addressInformationForm.fmobileNo(class="form-control form-control") }}
+                                                {{ addressInformationForm.fmobileNo(class="form-control form-control", placeholder="10 digit mobile number") }}
                                             {% endif %}
                                         </div>
 
@@ -261,7 +260,7 @@
                                                     {% endfor %}
                                                 </div>
                                             {% else %}
-                                                {{ addressInformationForm.femail(class="form-control form-control") }}
+                                                {{ addressInformationForm.femail(class="form-control form-control", placeholder="name@example.com") }}
                                             {% endif %}
                                         </div>
 
@@ -296,7 +295,7 @@
                                                     {% endfor %}
                                                 </div>
                                             {% else %}
-                                                {{ addressInformationForm.raddress(class="form-control form-control", autocomplete="address-line1") }}
+                                                {{ addressInformationForm.raddress(class="form-control form-control", autocomplete="address-line1", placeholder="Stree address") }}
                                             {% endif %}
                                         </div>
 
@@ -310,7 +309,7 @@
                                                     {% endfor %}
                                                 </div>
                                             {% else %}
-                                                {{ addressInformationForm.rapartment(class="form-control form-control", autocomplete="address-line2") }}
+                                                {{ addressInformationForm.rapartment(class="form-control form-control", autocomplete="address-line2", placeholder="Apt, Floor, Suite, etc .. (compulsory)") }}
                                             {% endif %}
                                         </div>
 
@@ -367,7 +366,7 @@
                                                     {% endfor %}
                                                 </div>
                                             {% else %}
-                                                {{ addressInformationForm.rmobileNo(class="form-control form-control") }}
+                                                {{ addressInformationForm.rmobileNo(class="form-control form-control", placeholder="10 digit mobile number") }}
                                             {% endif %}
                                         </div>
 
@@ -382,7 +381,7 @@
                                                     {% endfor %}
                                                 </div>
                                             {% else %}
-                                                {{ addressInformationForm.remail(class="form-control form-control") }}
+                                                {{ addressInformationForm.remail(class="form-control form-control", placeholder="name@example.com") }}
                                             {% endif %}
                                         </div>
 

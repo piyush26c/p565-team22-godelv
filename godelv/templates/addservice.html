@@ -17,8 +17,9 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ addserviceForm.servicename(class="form-control form-control") }}
+                        {{ addserviceForm.servicename(class="form-control form-control", placeholder="for eg. FedEx Standard (4 - 7 Days)") }}
                     {% endif %}
+                    <small class="form-text text-muted">Days span should be different for each service</small>
                 </div>
                 <div class="form-group border-bottom mb-3">
                     {{ addserviceForm.dimension.label(class="form-control-label") }}
