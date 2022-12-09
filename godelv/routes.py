@@ -27,8 +27,11 @@ import pymysql
 
 
 def dbconnect():
-    return pymysql.connect(host="sql9.freesqldatabase.com", port=3306, user="sql9583519", passwd="v2qff4bvAd", db="sql9583519",
+    return pymysql.connect(host="localhost", port=3306, user="root", passwd="piyush1234", db="godelv",
                                  cursorclass=pymysql.cursors.DictCursor)
+    # return pymysql.connect(host="sql9.freesqldatabase.com", port=3306, user="sql9583519", passwd="v2qff4bvAd",
+    #                        db="sql9583519",
+    #                        cursorclass=pymysql.cursors.DictCursor)
 
 
 
@@ -232,12 +235,15 @@ def send_email(email_):
     emailmsg = Message('GoDelv Account Password Reset Request', recipients=[email_], sender='godelvcompany@gmail.com')
     emailmsg.body = f'''
     Hi,
-    GoDelv received a requrest to reset the password for this account.Click the button below to reset your password. The link below will take you to a secure page where you can change your password.
+    GoDelv received a requrest to reset the password for this account.Click the button below to reset your password. 
+    The link below will take you to a secure page where you can change your password.
     {url_for('reset_token', token=token, _external=True)}
+    
+    
+    
     If you don't want to reset your password, please ignore this message. Your password will not be reset. 
     '''
     mail.send(emailmsg)
-    pass
 
 
 @app.route('/passworreset', methods=['GET', 'POST'])
@@ -366,6 +372,38 @@ def updateShippmentStatusLocationDeliveryDriver(SID):
         if updtShippmentStatusLocationform.option.data == "STATUS":
             cursor.execute('UPDATE Tracking SET deliveryStatus = % s WHERE TID = % s', (updtShippmentStatusLocationform.status.data, SID))
             connection.commit()
+            if updtShippmentStatusLocationform.status.data == "DELIVERED":
+                cursor.execute('SELECT * FROM Shippment WHERE SID = % s', SID)
+                shippmentRow = cursor.fetchone()
+
+                emailsubjectR = shippmentRow['rname'] + ", Your package has arrived!"
+                emailmsgR = Message(emailsubjectR, recipients=[shippmentRow['remail']],
+                                    sender='godelvcompany@gmail.com')
+
+                emailsubjectS = shippmentRow['fname'] + ", Your package is delivered!"
+                emailmsgS = Message(emailsubjectS, recipients=[shippmentRow['femail']],
+                                    sender='godelvcompany@gmail.com')
+
+                emailmsgR.body = f'''
+                Dear customer,
+                We are happy to inform you that GoDelv had successfully delivered the shipment at respective given address.
+                Shipment ID: {shippmentRow['SID']}
+                Carrier: {shippmentRow['carrierName']}
+                Delivery Address: 
+                {shippmentRow['rname']}
+                {shippmentRow['raddress']}
+                Apartment {shippmentRow['rapartment']}
+                {shippmentRow['rcity']}, {shippmentRow['rstate']} {shippmentRow['rzip']}
+                USA
+                
+                
+                Thank you for availing services from GoDelv company. For any further queries, kindly write us at godelvcompany@gmail.com
+ 
+                '''
+                emailmsgS.body = emailmsgR.body
+                mail.send(emailmsgR)
+                mail.send(emailmsgS)
+
         else:
             cursor.execute('UPDATE Tracking SET address = % s, zip = % s, city = % s, state = % s WHERE TID = % s', (updtShippmentStatusLocationform.address.data, updtShippmentStatusLocationform.zip.data, updtShippmentStatusLocationform.city.data, updtShippmentStatusLocationform.state.data, SID))
             connection.commit()
