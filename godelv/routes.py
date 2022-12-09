@@ -27,11 +27,11 @@ import pymysql
 
 
 def dbconnect():
-    return pymysql.connect(host="localhost", port=3306, user="root", passwd="piyush1234", db="godelv",
-                                 cursorclass=pymysql.cursors.DictCursor)
-    # return pymysql.connect(host="sql9.freesqldatabase.com", port=3306, user="sql9583519", passwd="v2qff4bvAd",
-    #                        db="sql9583519",
-    #                        cursorclass=pymysql.cursors.DictCursor)
+#     return pymysql.connect(host="localhost", port=3306, user="root", passwd="piyush1234", db="godelv",
+#                                  cursorclass=pymysql.cursors.DictCursor)
+    return pymysql.connect(host="sql9.freesqldatabase.com", port=3306, user="sql9583519", passwd="v2qff4bvAd",
+                           db="sql9583519",
+                           cursorclass=pymysql.cursors.DictCursor)
 
 
 
