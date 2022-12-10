@@ -51,17 +51,18 @@ While there are many different delivery services out there that all offer their 
 
 ### Built With
 
-These are the major frameworks that we used in the development of GoDelv.
+These are the major frameworks & development environments that we used in the development of GoDelv.
 
-1. HTML
-2. CSS
-3. Javascript
-4. jQuery
-5. AJAX
-6. Python
-7. Flask
-8. Jinja
-9. MySQL
+![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+![jQuery](https://img.shields.io/badge/jquery-%230769AD.svg?style=for-the-badge&logo=jquery&logoColor=white)
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
+![Jinja](https://img.shields.io/badge/jinja-white.svg?style=for-the-badge&logo=jinja&logoColor=black)
+![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
+![PyCharm](https://img.shields.io/badge/pycharm-143?style=for-the-badge&logo=pycharm&logoColor=black&color=black&labelColor=green)
+![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -97,6 +98,9 @@ Listed in this section are the prerequisites and installation instructions for t
    pip install -r requiremnts.txt
    ```
 7. Run "app.py"
+   ```sh
+   python app.py
+   ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -158,7 +162,7 @@ The file structure of your project should look something like this:
 <!-- LICENSE -->
 ## License
 
-Currently not distributed under any license.
+Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
