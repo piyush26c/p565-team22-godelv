@@ -9,7 +9,7 @@
   <p align="center">
     An online delivery service for all of your delivery needs!
     <br />
-    <a href="https://github.iu.edu/cuhoward/p565-team22-godelv"><strong>Explore the project »</strong></a>
+    <a href="https://godelv.herokuapp.com/"><strong>Explore the project »</strong></a>
   </p>
 </div>
 
@@ -173,6 +173,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 GoDelv - godelvcompany@gmail.com
 
-Project Link: https://github.iu.edu/cuhoward/p565-team22-godelv
+Project Code Link: https://github.iu.edu/cuhoward/p565-team22-godelv <br>
+Project Link: https://godelv.herokuapp.com/
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
