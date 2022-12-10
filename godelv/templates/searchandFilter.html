@@ -1,0 +1,108 @@
+{% extends "layout.html" %}
+
+{% block  content_2 %}
+    {#     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">#}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.css">
+    <script>
+        $(document).ready(function () {
+            $('#data').DataTable({
+                columns: [
+                    {searchable: true},
+                    {searchable: false, orderable: false},
+                    {orderable: true, searchable: true},
+                    {orderable: true, searchable: true},
+                    {orderable: true, searchable: true}],
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content_1 %}
+    <div class="card p-4 mt-5">
+        <div class="row g-3">
+            <div class="col-12 mb-4">
+                <h4>Find a Suitable Service</h4>
+                <span class="text-muted">Enter your approximate dimension and weight you anticipate your package to be</span>
+            </div>
+            <form id="form1" action="/searchandfilter" method="POST">
+                <div class="col-lg-12 col-md-4">
+                    <label>Carrier</label>
+                    <div class="form-floating">
+                        <select id="drop1" name="carrier" class="form-select" required>
+                            <option selected="" hidden="">Open this select menu</option>
+                            <option name="viewall" value="viewall">View All</option>
+                            <option name="USPS" value="USPS">USPS</option>
+                            <option name="Fedex" value="Fedex">Fedex</option>
+                            <option name="DHL" value="DHL">DHL</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="col-lg-12 col-md-4">
+                    <label>Shipping</label>
+                    <div class="form-floating">
+                        <select id="drop3" name="shipping" class="form-select" required>
+                            <option selected="" hidden="">Open this select menu</option>
+                            <option name="viewall" value="viewall">View All</option>
+                            <option name="Express" value="express">Express</option>
+                            <option name="Standard" value="standard">Standard</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="col-lg-12 col-md-4">
+                    <label>Dimension</label>
+                    <div class="form-floating">
+                        <select id="drop4" name="dimension" class="form-select" required>
+                            <option selected="" hidden="">Open this select menu</option>
+                            <option name="viewall" value="viewall">View All</option>
+                            <option name="Small" value="Small">Small</option>
+                            <option name="Medium" value="Medium">Medium</option>
+                            <option name="Large" value="Large">Large</option>
+                        </select>
+
+                    </div>
+                </div>
+                <br>
+                <div class="col-12 mt-4">
+                    <!-- <button class="btn btn-secondary text-uppercase" type="button">CLEAR FORM</button> -->
+                    <button class="btn btn-primary text-uppercase" action='submit' type="submit" name="submit"
+                            value="submit">SHOW RESULTS<i class="fa fa-plane ms-3"></i></button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+    <br>
+
+
+    <table id="data" class="table table-striped">
+        <thead>
+        <TR>
+            <TD class="c1">Carrier</TD>
+            <TD class="c2">Dimension</TD>
+            <!-- <TD class="c3">Weights</TD> -->
+            <TD class="c4">Shipping</TD>
+            <TD class="c5">Price</TD>
+        </TR>
+        </thead>
+        <tbody>
+        {% for post in posts %}
+            <TR>
+                <TD class="c1">{{ post['carrierName'] }}</TD>
+                <TD class="c2">{{ post['dimension'] }}</TD>
+                <!-- <TD class="c3">{{ post['weights'] }}</TD> -->
+                <TD class="c4">{{ post['deliveryServiceName'] }}</TD>
+                <TD class="c5">{{ post['price'] }}</TD>
+            </TR>
+        {% endfor %}
+        </tbody>
+    </table>
+
+     <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+            src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8"
+            src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script>
+
+{% endblock content_1 %}

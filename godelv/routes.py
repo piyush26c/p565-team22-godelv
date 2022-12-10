@@ -27,12 +27,11 @@ import pymysql
 
 
 def dbconnect():
-#     return pymysql.connect(host="localhost", port=3306, user="root", passwd="piyush1234", db="godelv",
-#                                  cursorclass=pymysql.cursors.DictCursor)
+    # return pymysql.connect(host="localhost", port=3306, user="root", passwd="piyush1234", db="godelv",
+    #                              cursorclass=pymysql.cursors.DictCursor)
     return pymysql.connect(host="sql9.freesqldatabase.com", port=3306, user="sql9583519", passwd="v2qff4bvAd",
                            db="sql9583519",
                            cursorclass=pymysql.cursors.DictCursor)
-
 
 
 @app.route('/')
@@ -99,6 +98,7 @@ def qrcode():
         'Pragma': 'no-cache',
         'Expires': '0'}
 
+
 @app.route('/fetchdropdowndata_carriers', methods=['GET', 'POST'])
 def fetchdropdowndata_carriers():
     connection = dbconnect()
@@ -110,11 +110,12 @@ def fetchdropdowndata_carriers():
         jsonOutput = []
         if carriers:
             for aCarrier in carriers:
-                jsonOutput.append({"value" : aCarrier["carrierID"], "display" : aCarrier["carrierName"]})
+                jsonOutput.append({"value": aCarrier["carrierID"], "display": aCarrier["carrierName"]})
         else:
             print('console:- no carriers found')
     cursor.close()
     return jsonify(jsonOutput)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -149,8 +150,8 @@ def register():
             # cursor.execute('SELECT carrierID FROM Carrier WHERE carrierName = % s', ())
             carrierID = form.carrierName.data
             print(form.email.data, form.managerID.data, form.firstName.data, form.lastName.data,
-                            datetime.strftime(form.dateOfBirth.data, '%m/%d/%Y'),
-                            form.mobileNo.data, str("FALSE"), carrierID)
+                  datetime.strftime(form.dateOfBirth.data, '%m/%d/%Y'),
+                  form.mobileNo.data, str("FALSE"), carrierID)
 
             cursor.execute('INSERT INTO DeliveryDriver VALUES(% s, % s, % s, % s, % s, % s, % s, % s)',
                            (form.email.data, form.managerID.data, form.firstName.data, form.lastName.data,
@@ -183,9 +184,9 @@ def login():
         userDBData = cursor.fetchone()
 
         if userDBData and bcrypt.check_password_hash(userDBData['password'],
-                                                                 form.password.data) and verify_totp(form.otp.data,
-                                                                                                     userDBData[
-                                                                                                         'otpSecret']):
+                                                     form.password.data) and verify_totp(form.otp.data,
+                                                                                         userDBData[
+                                                                                             'otpSecret']):
             flash('You have been logged in!', 'success')
             session['useremail'] = userDBData['email']
             session['userType'] = userDBData['userType']
@@ -194,11 +195,14 @@ def login():
             if session['userType'] == 'CUSTOMER':
                 return redirect(url_for('customerhome'))
             elif session['userType'] == 'ADMINISTRATOR':
-                cursor.execute("SELECT carrierName FROM Carrier WHERE carrierID = (SELECT carrierID FROM Administrator where email = % s)", (session['useremail']))
+                cursor.execute(
+                    "SELECT carrierName FROM Carrier WHERE carrierID = (SELECT carrierID FROM Administrator where email = % s)",
+                    (session['useremail']))
                 session['carrierName'] = cursor.fetchone()['carrierName']
                 return redirect(url_for('adminhome'))
             else:
-                cursor.execute("SELECT carrierName FROM Carrier WHERE carrierID = (SELECT carrierID FROM DeliveryDriver where email = % s)",
+                cursor.execute(
+                    "SELECT carrierName FROM Carrier WHERE carrierID = (SELECT carrierID FROM DeliveryDriver where email = % s)",
                     (session['useremail']))
                 session['carrierName'] = cursor.fetchone()['carrierName']
                 return redirect(url_for('deliverydriverhome'))
@@ -290,9 +294,11 @@ def reset_token(token):
 def customerhome():
     return render_template('customer_home.html')
 
+
 @app.route('/adminhome', methods=['GET', 'POST'])
 def adminhome():
     return render_template('adminhome.html')
+
 
 @app.route('/delegateordertodriver/<string:SID>', methods=['GET', 'POST'])
 def delegateordertodriver(SID):
@@ -311,9 +317,11 @@ def delegateordertodriver(SID):
         print(drivers)
         delegateordertodriverForm.driver.choices = drivers
         cursor.close()
-        return render_template('assigndriverfororder.html', delegateordertodriverForm=delegateordertodriverForm, shippingID=SID)
+        return render_template('assigndriverfororder.html', delegateordertodriverForm=delegateordertodriverForm,
+                               shippingID=SID)
     else:
-        cursor.execute('UPDATE Shippment SET deliveryDriverID = % s WHERE SID = % s', (delegateordertodriverForm.driver.data, SID))
+        cursor.execute('UPDATE Shippment SET deliveryDriverID = % s WHERE SID = % s',
+                       (delegateordertodriverForm.driver.data, SID))
         connection.commit()
         cursor.execute('UPDATE DeliveryDriver SET isEngage = "TRUE" WHERE email = % s',
                        (delegateordertodriverForm.driver.data))
@@ -335,30 +343,37 @@ def delegateorders():
     # Creating a connection cursor
     cursor = connection.cursor()
     if request.method == "GET":
-        cursor.execute("SELECT * FROM Shippment WHERE carrierName = % s AND deliveryDriverID = '' AND SID in (SELECT TID FROM Tracking WHERE deliveryStatus = 'ORDER CONFIRMED')", (session['carrierName']))
+        cursor.execute(
+            "SELECT * FROM Shippment WHERE carrierName = % s AND deliveryDriverID = '' AND SID in (SELECT TID FROM Tracking WHERE deliveryStatus = 'ORDER CONFIRMED')",
+            (session['carrierName']))
         rows = cursor.fetchall()
         tablerows = []
 
         for row in rows:
-            tablerows.append({"SID" : row['SID'], "raddress" : row['raddress'], "rcity" : row['rcity'], "rstate": row['rstate'], "rzip" : row['rzip']})
+            tablerows.append(
+                {"SID": row['SID'], "raddress": row['raddress'], "rcity": row['rcity'], "rstate": row['rstate'],
+                 "rzip": row['rzip']})
         print('delegateorders(): ', tablerows)
         cursor.close()
         return render_template('delegateorders.html', tablerows=tablerows)
+
 
 @app.route('/updateShippmentDeliveryDriver', methods=['GET'])
 def updateShippmentDeliveryDriver():
     connection = dbconnect()
     # Creating a connection cursor
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM Tracking WHERE deliveryStatus != "DELIVERED" AND deliveryStatus != "PICKED BY CARRIER"')
+    cursor.execute(
+        'SELECT * FROM Tracking WHERE deliveryStatus != "DELIVERED" AND deliveryStatus != "PICKED BY CARRIER"')
     rows = cursor.fetchall()
     tablerows = []
 
     for row in rows:
-        tablerows.append({"SID" : row['TID'], "Delivery Status": row['deliveryStatus']})
+        tablerows.append({"SID": row['TID'], "Delivery Status": row['deliveryStatus']})
     print("updateShippmentStatusDeliveryDriver(): ", tablerows)
     cursor.close()
     return render_template("updateShippmentLocation.html", tablerows=tablerows)
+
 
 @app.route('/updateShippmentStatusLocationDeliveryDriver/<string:SID>', methods=['GET', 'POST'])
 def updateShippmentStatusLocationDeliveryDriver(SID):
@@ -366,11 +381,14 @@ def updateShippmentStatusLocationDeliveryDriver(SID):
     # Creating a connection cursor
     cursor = connection.cursor()
     updtShippmentStatusLocationform = UpdateShippmentStatusLocationForm()
-    print(updtShippmentStatusLocationform.errors, updtShippmentStatusLocationform.submitUpdateShippmentStatusLocationForm.data, updtShippmentStatusLocationform.status.data)
+    print(updtShippmentStatusLocationform.errors,
+          updtShippmentStatusLocationform.submitUpdateShippmentStatusLocationForm.data,
+          updtShippmentStatusLocationform.status.data)
     if updtShippmentStatusLocationform.submitUpdateShippmentStatusLocationForm.data:
 
         if updtShippmentStatusLocationform.option.data == "STATUS":
-            cursor.execute('UPDATE Tracking SET deliveryStatus = % s WHERE TID = % s', (updtShippmentStatusLocationform.status.data, SID))
+            cursor.execute('UPDATE Tracking SET deliveryStatus = % s WHERE TID = % s',
+                           (updtShippmentStatusLocationform.status.data, SID))
             connection.commit()
             if updtShippmentStatusLocationform.status.data == "DELIVERED":
                 cursor.execute('SELECT * FROM Shippment WHERE SID = % s', SID)
@@ -405,19 +423,22 @@ def updateShippmentStatusLocationDeliveryDriver(SID):
                 mail.send(emailmsgS)
 
         else:
-            cursor.execute('UPDATE Tracking SET address = % s, zip = % s, city = % s, state = % s WHERE TID = % s', (updtShippmentStatusLocationform.address.data, updtShippmentStatusLocationform.zip.data, updtShippmentStatusLocationform.city.data, updtShippmentStatusLocationform.state.data, SID))
+            cursor.execute('UPDATE Tracking SET address = % s, zip = % s, city = % s, state = % s WHERE TID = % s', (
+                updtShippmentStatusLocationform.address.data, updtShippmentStatusLocationform.zip.data,
+                updtShippmentStatusLocationform.city.data, updtShippmentStatusLocationform.state.data, SID))
             connection.commit()
         flash("Updation done successfully!", 'success')
         return redirect(url_for('updateShippmentDeliveryDriver'))
     cursor.close()
-    return render_template('updateShippmentStatusLocation.html', updtShippmentStatusLocationform=updtShippmentStatusLocationform)
-
-
+    return render_template('updateShippmentStatusLocation.html',
+                           updtShippmentStatusLocationform=updtShippmentStatusLocationform)
 
 
 @app.route('/deliverydriverhome', methods=['GET', 'POST'])
 def deliverydriverhome():
     return render_template('deliverydriver_home.html')
+
+
 @app.route('/fetchdropdowndata_carriername', methods=['POST'])
 def fetchdropdowndata_carriername():
     connection = dbconnect()
@@ -435,6 +456,7 @@ def fetchdropdowndata_carriername():
     cursor.close()
     return jsonify(jsonOutput)
 
+
 @app.route('/fetchdropdowndata_carriermanagers', methods=['POST'])
 def fetchdropdowndata_carriermanagers():
     connection = dbconnect()
@@ -444,13 +466,13 @@ def fetchdropdowndata_carriermanagers():
         carrierid = request.form['carriername']
         print('thisisfetchdropdowndata_carriermanagers: ', carrierid)
 
-
         cursor.execute("SELECT firstName, lastName, email FROM Administrator  WHERE carrierID = % s", (carrierid))
         deliveryManagers = cursor.fetchall()
         jsonOutput = []
         print('managers', deliveryManagers)
         for row in deliveryManagers:
-            jsonOutput.append({"value": row['email'], "display": row['firstName'] + " " + row['lastName'] + " (" + row['email'] + ")"})
+            jsonOutput.append({"value": row['email'],
+                               "display": row['firstName'] + " " + row['lastName'] + " (" + row['email'] + ")"})
     cursor.close()
     return jsonify(jsonOutput)
 
@@ -468,9 +490,10 @@ def fetchdropdowndata_carrierdimensions():
         jsonOutput = []
         print(dimensions)
         for row in dimensions:
-            jsonOutput.append({"value" : row['dimension'], "display" : row['dimension']})
+            jsonOutput.append({"value": row['dimension'], "display": row['dimension']})
     cursor.close()
     return jsonify(jsonOutput)
+
 
 @app.route('/insertShippmentIDDB', methods=['POST'])
 def insertShippmentIDDB():
@@ -481,31 +504,45 @@ def insertShippmentIDDB():
     if request.method == "POST":
         jsonOutput = []
         trackingid = request.form['trackingid']
-        jsonOutput.append({'trackingid' : trackingid})
+        jsonOutput.append({'trackingid': trackingid})
 
         print('insertShippmentIDDB(): trackingid', trackingid)
 
+        print(str(trackingid), session['shippment_fname'], session['shippment_faddress'],
+              session['shippment_fapartment'],
+              session['shippment_fzip'], session['shippment_fcity'], session['shippment_fstate'],
+              session['shippment_fmobileNo'],
+              session['shippment_femail'], session['shippment_rname'], session['shippment_raddress'],
+              session['shippment_rapartment'],
+              session['shippment_rzip'], session['shippment_rcity'], session['shippment_rstate'],
+              session['shippment_rmobileNo'],
+              session['shippment_remail'], session['shippment_carrierName'], session['shippment_deliveryServiceName'],
+              session['shippment_dimension'],
+              session['shippment_price'], session['shippment_weight'], session['shippment_deliveryDriverID'],
+              session['shippment_customerID']
+              )
 
-        print(str(trackingid), session['shippment_fname'], session['shippment_faddress'], session['shippment_fapartment'],
-                        session['shippment_fzip'], session['shippment_fcity'], session['shippment_fstate'], session['shippment_fmobileNo'],
-                        session['shippment_femail'], session['shippment_rname'], session['shippment_raddress'], session['shippment_rapartment'],
-                        session['shippment_rzip'], session['shippment_rcity'], session['shippment_rstate'], session['shippment_rmobileNo'],
-                        session['shippment_remail'], session['shippment_carrierName'], session['shippment_deliveryServiceName'], session['shippment_dimension'],
-                        session['shippment_price'], session['shippment_weight'], session['shippment_deliveryDriverID'], session['shippment_customerID']
-                        )
-
-        #inserting data into shippment and tracking table
-        cursor.execute('INSERT INTO Shippment VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                       (str(trackingid), session['shippment_fname'], session['shippment_faddress'], session['shippment_fapartment'],
-                        session['shippment_fzip'], session['shippment_fcity'], session['shippment_fstate'], session['shippment_fmobileNo'],
-                        session['shippment_femail'], session['shippment_rname'], session['shippment_raddress'], session['shippment_rapartment'],
-                        session['shippment_rzip'], session['shippment_rcity'], session['shippment_rstate'], session['shippment_rmobileNo'],
-                        session['shippment_remail'], session['shippment_carrierName'], session['shippment_deliveryServiceName'], session['shippment_dimension'],
-                        session['shippment_price'], session['shippment_weight'], session['shippment_deliveryDriverID'], session['shippment_customerID']
-                        ))
+        # inserting data into shippment and tracking table
+        cursor.execute(
+            'INSERT INTO Shippment VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+            (
+                str(trackingid), session['shippment_fname'], session['shippment_faddress'],
+                session['shippment_fapartment'],
+                session['shippment_fzip'], session['shippment_fcity'], session['shippment_fstate'],
+                session['shippment_fmobileNo'],
+                session['shippment_femail'], session['shippment_rname'], session['shippment_raddress'],
+                session['shippment_rapartment'],
+                session['shippment_rzip'], session['shippment_rcity'], session['shippment_rstate'],
+                session['shippment_rmobileNo'],
+                session['shippment_remail'], session['shippment_carrierName'], session['shippment_deliveryServiceName'],
+                session['shippment_dimension'],
+                session['shippment_price'], session['shippment_weight'], session['shippment_deliveryDriverID'],
+                session['shippment_customerID']
+            ))
         connection.commit()
 
-        cursor.execute('INSERT INTO Tracking VALUES(% s, % s, % s, % s, % s, % s, % s)', (trackingid, "ORDER CONFIRMED", "", "", "", "", ""))
+        cursor.execute('INSERT INTO Tracking VALUES(% s, % s, % s, % s, % s, % s, % s)',
+                       (trackingid, "ORDER CONFIRMED", "", "", "", "", ""))
         connection.commit()
 
     cursor.close()
@@ -532,7 +569,6 @@ def createshipment():
     shippingDetailsForm.carriername.choices = carriername
     shippingDetailsForm.packagesize.choices = packagesize
     shippingDetailsForm.servicename.choices = servicename
-
 
     if addressInformationForm.submit1.data and addressInformationForm.validate():
         flash("Address Details Verified Successfully!", 'success')
@@ -563,16 +599,15 @@ def createshipment():
         flash("Shipping Details Verified Successfully!", 'success')
         print('errors1:', request.form.keys(), request.form['servicename'], shippingDetailsForm.servicename.data)
 
-
-
-        #inserting all shippment detials into session
+        # inserting all shippment detials into session
 
         session['shippment_carrierName'] = shippingDetailsForm.carriername.data
         session['shippment_deliveryServiceName'] = shippingDetailsForm.servicename.data
 
         session['shippment_dimension'] = shippingDetailsForm.packagesize.data
 
-        cursor.execute('SELECT price FROM DeliveryService WHERE deliveryServiceName = % s AND carrierName = % s', (shippingDetailsForm.servicename.data, shippingDetailsForm.carriername.data))
+        cursor.execute('SELECT price FROM DeliveryService WHERE deliveryServiceName = % s AND carrierName = % s',
+                       (shippingDetailsForm.servicename.data, shippingDetailsForm.carriername.data))
         perlbprice = cursor.fetchone()['price']
 
         session['shippment_price'] = shippingDetailsForm.packageweight.data * perlbprice
@@ -587,12 +622,10 @@ def createshipment():
         print(shippingDetailsForm.submit2.data)
         flash("Error occured, Recheck the Shipping Details", "danger")
         return render_template('createshipment.html', addressInformationForm=addressInformationForm,
-                           shippingDetailsForm=shippingDetailsForm)
+                               shippingDetailsForm=shippingDetailsForm)
     cursor.close()
     return render_template('createshipment.html', addressInformationForm=addressInformationForm,
                            shippingDetailsForm=shippingDetailsForm)
-
-
 
 
 @app.route('/trackbyid', methods=['GET', 'POST'])
@@ -610,7 +643,8 @@ def trackbyid():
             shippmentDetails = cursor.fetchone()
 
             if trackingDetails['deliveryStatus'] != "ORDER CONFIRMED":
-                current_location = [trackingDetails['address'], trackingDetails['city'], trackingDetails['state'], trackingDetails['zip']]
+                current_location = [trackingDetails['address'], trackingDetails['city'], trackingDetails['state'],
+                                    trackingDetails['zip']]
                 locator = Nominatim(user_agent="myGeocoder")
                 current_location = locator.geocode(current_location[0])
                 folium_map = folium.Map(location=(current_location.latitude, current_location.longitude), width='50%',
@@ -624,16 +658,15 @@ def trackbyid():
                 return render_template('trackingbyidresult.html', trackbyIDForm=trackbyIDForm,
                                        trackingDetails=trackingDetails, shippmentDetails=shippmentDetails)
             else:
-                return render_template('trackingbyidresult.html', trackbyIDForm=trackbyIDForm, trackingDetails=trackingDetails, shippmentDetails=shippmentDetails)
+                return render_template('trackingbyidresult.html', trackbyIDForm=trackbyIDForm,
+                                       trackingDetails=trackingDetails, shippmentDetails=shippmentDetails)
 
 
         else:
             flash('Invalid Tracking ID!', 'danger')
 
-
     cursor.close()
     return render_template('trackbyid.html', trackbyIDForm=trackbyIDForm)
-
 
 
 @app.route('/addservice', methods=['GET', 'POST'])
@@ -646,10 +679,53 @@ def addservice():
     if addserviceForm.validate_on_submit():
         cursor.execute("SELECT * FROM Carrier WHERE carrierName = % s", (session['carrierName']))
         carrierID = cursor.fetchone()['carrierID']
-        cursor.execute("INSERT INTO DeliveryService VALUES(% s, % s, % s, % s, % s)", (addserviceForm.servicename.data, carrierID, session['carrierName'], addserviceForm.dimension.data, addserviceForm.price.data))
+        cursor.execute("INSERT INTO DeliveryService VALUES(% s, % s, % s, % s, % s)", (
+            addserviceForm.servicename.data, carrierID, session['carrierName'], addserviceForm.dimension.data,
+            addserviceForm.price.data))
         connection.commit()
         flash("Services successfully added!", "success")
         return redirect(url_for('addservice'))
 
     cursor.close()
     return render_template('addservice.html', addserviceForm=addserviceForm)
+
+
+@app.route('/searchandfilter', methods=['POST', 'GET'])
+def searchandfilter():
+    if request.method == 'POST':
+        form_data = request.form
+        print(form_data)
+        print("\n kjfhliwhfiwjfiuhf")
+
+        carrier = "carrierName LIKE \'%\' AND " if form_data['carrier'] == "viewall" else "carrierName = \'" + str(
+            form_data['carrier']) + "\' AND "
+        print(carrier)
+        # weight="weights LIKE \'%\' AND " if form_data['weight'] == "viewall" else "weights=\'"+str(form_data['weight'])+"\' AND "
+
+        shipping = "deliveryServiceName LIKE \'%\' " if form_data[
+                                                            'shipping'] == "viewall" else "deliveryServiceName LIKE\'%" + str(
+            form_data['shipping']) + "%\' "
+        dimension = "AND dimension LIKE \'%\'" if form_data['dimension'] == "viewall" else "AND dimension=\'" + str(
+            form_data['dimension']) + "\'"
+        print(shipping, dimension)
+        connection = dbconnect()
+        # Creating a connection cursor
+        cursor = connection.cursor()
+        # conn = get_db_connection()
+        sqlQueryString = "SELECT * FROM DeliveryService WHERE " + carrier + shipping + dimension
+        print(sqlQueryString)
+        cursor.execute(sqlQueryString)
+        posts = cursor.fetchall()
+        connection.close()
+
+
+
+    else:
+        # conn = get_db_connection()
+        connection = dbconnect()
+        cursor = connection.cursor()
+
+        cursor.execute('SELECT * FROM DeliveryService')
+        posts = cursor.fetchall()
+        connection.close()
+    return render_template('searchandFilter.html', posts=posts)
