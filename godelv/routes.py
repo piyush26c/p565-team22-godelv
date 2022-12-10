@@ -364,7 +364,7 @@ def updateShippmentDeliveryDriver():
     # Creating a connection cursor
     cursor = connection.cursor()
     cursor.execute(
-        'SELECT * FROM Tracking WHERE deliveryStatus != "DELIVERED" AND deliveryStatus != "PICKED BY CARRIER"')
+        'SELECT * FROM Tracking WHERE deliveryStatus != "DELIVERED" AND deliveryStatus != "ORDER CONFIRMED"')
     rows = cursor.fetchall()
     tablerows = []
 
